@@ -24,23 +24,36 @@ public class DisruptorPerformanceTest {
 
   /**
    * Total            Disruptor     ArrayBlockingQueue
-   * One million      418 ms        534 ms
-   * Five million     796 ms        985 ms
-   * Ten million      1389 ms       1870 ms
+   * One million      192 ms        241 ms
+   * Five million     1067 ms       1240 ms
+   * Ten million      1670 ms       1981 ms
    *
    * @throws InterruptedException
    */
   @Test
   public void performanceTest() throws InterruptedException {
     int[] totals = {ONE_MILLION, 5 * ONE_MILLION, 10 * ONE_MILLION};
+    //warm up
+    logger.info("Warm up.");
+    for (int i = 0; i < 3; i++) {
+      //test Disruptor
+      performanceTest4Disruptor(ONE_MILLION);
+      //test ArrayBlockingQueue
+      performanceTest4ArrayBlockingQueue(ONE_MILLION);
+      //main thread wait a while
+      TimeUnit.SECONDS.sleep(1);
+    }
+
+    //performance test
+    logger.info("performance test.");
     for (final int total : totals) {
       //test Disruptor
       performanceTest4Disruptor(total);
       //test ArrayBlockingQueue
       performanceTest4ArrayBlockingQueue(total);
+      //main thread wait a while
+      TimeUnit.SECONDS.sleep(5);
     }
-    //main thread wait a while
-    TimeUnit.SECONDS.sleep(40);
   }
 
   /**
