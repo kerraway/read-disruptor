@@ -18,7 +18,7 @@ public class TradeHandler5 implements EventHandler<Trade> {
 
   @Override
   public void onEvent(Trade event, long sequence, boolean endOfBatch) throws Exception {
-    logger.info("Trade handler 2: update price");
+    logger.info("Trade handler 5: multiply price with 10");
     Thread.sleep(1500);
     event.setPrice(event.getPrice().multiply(BigDecimal.TEN));
   }
