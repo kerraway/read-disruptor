@@ -1,4 +1,4 @@
-package com.github.kerraway.disruptor.advanced;
+package com.github.kerraway.disruptor.advanced.chain;
 
 import lombok.AccessLevel;
 import lombok.Data;

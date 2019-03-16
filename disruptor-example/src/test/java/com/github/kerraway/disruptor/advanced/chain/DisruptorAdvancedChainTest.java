@@ -1,4 +1,4 @@
-package com.github.kerraway.disruptor.advanced;
+package com.github.kerraway.disruptor.advanced.chain;
 
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.*;
@@ -17,18 +17,18 @@ import java.util.concurrent.Executors;
  * @date 2019/3/11
  */
 @Slf4j
-public class DisruptorAdvancedTest {
+public class DisruptorAdvancedChainTest {
 
   @Test
   public void advancedTest() throws InterruptedException {
-    for (DisruptorAdvancedOption advancedOption : DisruptorAdvancedOption.values()) {
+    for (DisruptorAdvancedChainOption advancedOption : DisruptorAdvancedChainOption.values()) {
       logger.info("{}", advancedOption.getDesc());
       advancedTest(advancedOption);
       logger.info("");
     }
   }
 
-  private void advancedTest(DisruptorAdvancedOption advancedOption) throws InterruptedException {
+  private void advancedTest(DisruptorAdvancedChainOption chainOption) throws InterruptedException {
     ExecutorService executor4Disruptor = Executors.newFixedThreadPool(5);
     //1 构建 disruptor
     Disruptor<Trade> disruptor = new Disruptor<>(
@@ -45,7 +45,7 @@ public class DisruptorAdvancedTest {
     );
 
     //2 把消费者设置到 disruptor 中去
-    handleEventsWith(advancedOption, disruptor);
+    handleEventsWith(chainOption, disruptor);
 
     //3 启动 disruptor
     RingBuffer<Trade> ringBuffer = disruptor.start();
@@ -64,8 +64,8 @@ public class DisruptorAdvancedTest {
     logger.info("End, use {} ms", Duration.between(start, Instant.now()).toMillis());
   }
 
-  private void handleEventsWith(DisruptorAdvancedOption advancedOption, Disruptor<Trade> disruptor) {
-    switch (advancedOption) {
+  private void handleEventsWith(DisruptorAdvancedChainOption chainOption, Disruptor<Trade> disruptor) {
+    switch (chainOption) {
       //2.1 串行操作
       case SERIAL:
         disruptor

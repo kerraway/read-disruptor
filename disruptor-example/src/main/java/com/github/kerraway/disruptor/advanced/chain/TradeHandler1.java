@@ -1,4 +1,4 @@
-package com.github.kerraway.disruptor.advanced;
+package com.github.kerraway.disruptor.advanced.chain;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.WorkHandler;

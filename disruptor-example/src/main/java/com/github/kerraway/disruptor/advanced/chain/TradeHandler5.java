@@ -1,4 +1,4 @@
-package com.github.kerraway.disruptor.advanced;
+package com.github.kerraway.disruptor.advanced.chain;
 
 import com.lmax.disruptor.EventHandler;
 import lombok.AccessLevel;
@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 /**
  * @author kerraway
@@ -14,13 +13,13 @@ import java.util.UUID;
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-public class TradeHandler4 implements EventHandler<Trade> {
+public class TradeHandler5 implements EventHandler<Trade> {
 
   @Override
   public void onEvent(Trade event, long sequence, boolean endOfBatch) throws Exception {
-    logger.info("Trade handler 4: set price to 10");
-    Thread.sleep(1000);
-    event.setPrice(BigDecimal.TEN);
+    logger.info("Trade handler 5: multiply price with 10");
+    Thread.sleep(1500);
+    event.setPrice(event.getPrice().multiply(BigDecimal.TEN));
   }
 
 }
