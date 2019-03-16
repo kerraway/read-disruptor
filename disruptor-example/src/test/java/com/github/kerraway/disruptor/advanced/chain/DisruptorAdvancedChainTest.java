@@ -20,15 +20,15 @@ import java.util.concurrent.Executors;
 public class DisruptorAdvancedChainTest {
 
   @Test
-  public void advancedTest() throws InterruptedException {
+  public void advancedChainTest() throws InterruptedException {
     for (DisruptorAdvancedChainOption advancedOption : DisruptorAdvancedChainOption.values()) {
       logger.info("{}", advancedOption.getDesc());
-      advancedTest(advancedOption);
+      advancedChainTest(advancedOption);
       logger.info("");
     }
   }
 
-  private void advancedTest(DisruptorAdvancedChainOption chainOption) throws InterruptedException {
+  private void advancedChainTest(DisruptorAdvancedChainOption chainOption) throws InterruptedException {
     ExecutorService executor4Disruptor = Executors.newFixedThreadPool(5);
     //1 构建 disruptor
     Disruptor<Trade> disruptor = new Disruptor<>(
