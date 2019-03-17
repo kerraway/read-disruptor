@@ -11,6 +11,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -337,6 +338,89 @@ public class JucTest {
     logger.info("Result from future: {}", result);
 
     executor.shutdown();
+  }
+
+  /**
+   * 使用 {@code synchronized}, {@link Object#wait()}, {@link Object#notify()} 实现线程的等待与唤醒。
+   */
+  @Test
+  public void synchronizedTest() throws InterruptedException {
+    final Object lock = new Object();
+    Thread threadA = new Thread(() -> {
+      int sum = 0;
+      for (int i = 0; i < 10; i++) {
+        sum += i;
+      }
+      logger.info("A thread wait.");
+      //wait
+      synchronized (lock) {
+        try {
+          lock.wait();
+        } catch (InterruptedException e) {
+          logger.error("InterruptedException occurred.", e);
+        }
+      }
+      logger.info("A thread sum: {}", sum);
+      logger.info("A thread end.");
+    });
+
+    threadA.start();
+
+    logger.info("Main thread sleep 1 second start.");
+    TimeUnit.SECONDS.sleep(1);
+    logger.info("Main thread sleep 1 second end.");
+
+    //notify
+    synchronized (lock) {
+      lock.notify();
+    }
+
+    TimeUnit.MILLISECONDS.sleep(100);
+    logger.info("Main thread end.");
+  }
+
+  /**
+   * 使用 {@link LockSupport#park()}, {@link LockSupport#unpark(Thread)} 实现线程的等待与唤醒。
+   * <p>
+   * 注意：{@link LockSupport#unpark(Thread)} 可以先于 {@link LockSupport#park()} 执行，结果没有区别。
+   *
+   * @see LockSupport
+   */
+  @Test
+  public void lockSupportTest() throws InterruptedException {
+    Thread threadA = new Thread(() -> {
+      int sum = 0;
+      for (int i = 0; i < 10; i++) {
+        sum += i;
+      }
+
+      //睡 4 秒钟，让主线程先执行 LockSupport.unpark(threadA); 操作
+      try {
+        logger.info("A thread sleep 4 second start.");
+        TimeUnit.SECONDS.sleep(4);
+        logger.info("A thread sleep 4 second end.");
+      } catch (InterruptedException e) {
+        logger.error("InterruptedException occurred.", e);
+      }
+
+      logger.info("A thread wait.");
+      //wait
+      LockSupport.park();
+      logger.info("A thread sum: {}", sum);
+      logger.info("A thread end.");
+    });
+
+    threadA.start();
+
+    logger.info("Main thread sleep 1 second start.");
+    TimeUnit.SECONDS.sleep(1);
+    logger.info("Main thread sleep 1 second end.");
+
+    //notify
+    LockSupport.unpark(threadA);
+
+    TimeUnit.SECONDS.sleep(4);
+    logger.info("Main thread end.");
   }
 
 }
