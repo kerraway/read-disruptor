@@ -205,4 +205,138 @@ public class JucTest {
     logger.info("{}", atomicInteger.get());
   }
 
+  /**
+   * {@link CountDownLatch} 用于协调多线程的运行，调用 {@link CountDownLatch#await()} 的线程处于等待状态，
+   * 等到其他线程都执行了 {@link CountDownLatch#countDown()} 后，被阻塞线程会继续运行。
+   *
+   * @see CountDownLatch
+   */
+  @Test
+  public void countDownLatchTest() throws InterruptedException {
+    int total = 5;
+    ExecutorService executor = Executors.newFixedThreadPool(total);
+    CountDownLatch latch = new CountDownLatch(total);
+    Random random = new Random();
+    for (int i = 0; i < total; i++) {
+      int finalI = i;
+      executor.submit(() -> {
+        try {
+          TimeUnit.MILLISECONDS.sleep(random.nextInt(100));
+        } catch (InterruptedException e) {
+          logger.error("InterruptedException occurred.", e);
+        }
+        logger.info("Thread {} end.", finalI);
+        latch.countDown();
+      });
+    }
+
+    //阻塞，等待其他所有线程都调用 latch.countDown() 方法
+    latch.await();
+
+    executor.shutdown();
+    logger.info("Main thread end.");
+  }
+
+  /**
+   * {@link CyclicBarrier} 用于协调多线程的运行，调用 {@link CyclicBarrier#await()} 的线程处于等待状态，
+   * 等到所有线程都执行了该方法，也就是说所有线程都就绪了，所有线程会一起继续运行。
+   *
+   * @see CyclicBarrier
+   */
+  @Test
+  public void cyclicBarrierTest() throws InterruptedException {
+    int total = 5;
+    ExecutorService executor = Executors.newFixedThreadPool(total);
+    CyclicBarrier cyclicBarrier = new CyclicBarrier(total);
+    Random random = new Random();
+    for (int i = 0; i < total; i++) {
+      int finalI = i;
+      executor.submit(() -> {
+        try {
+          TimeUnit.MILLISECONDS.sleep(random.nextInt(1000));
+        } catch (InterruptedException e) {
+          logger.error("InterruptedException occurred.", e);
+        }
+        logger.info("Thread {} ready.", finalI);
+        try {
+          //阻塞，等待其他线程就绪
+          cyclicBarrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+          e.printStackTrace();
+        }
+        logger.info("Thread {} end.", finalI);
+      });
+    }
+
+    TimeUnit.SECONDS.sleep(2);
+    executor.shutdown();
+    logger.info("Main thread end.");
+  }
+
+  /**
+   * {@link Semaphore} 用于控制允许并发执行的最大线程数。
+   * <p>
+   * 注意：任务已经被提交给线程池，只是在执行的时候被控制并发数，所以任务会堆积在线程池
+   * 的任务队列 {@link ThreadPoolExecutor#workQueue} 中。
+   *
+   * @see Semaphore
+   */
+  @Test
+  public void semaphoreTest() throws InterruptedException {
+    ExecutorService executor = Executors.newFixedThreadPool(20);
+    Semaphore semaphore = new Semaphore(10);
+    for (int i = 0; i < 100; i++) {
+      int finalI = i;
+      executor.submit(() -> {
+        try {
+          semaphore.acquire();
+          TimeUnit.MILLISECONDS.sleep(1000);
+          logger.info("{}. thread: {}", finalI, Thread.currentThread().getName());
+        } catch (InterruptedException e) {
+          logger.error("InterruptedException occurred.", e);
+        } finally {
+          semaphore.release();
+        }
+      });
+    }
+
+    TimeUnit.SECONDS.sleep(10);
+    executor.shutdown();
+    logger.info("Main thread end.");
+  }
+
+  /**
+   * @see Future
+   * @see Callable
+   */
+  @Test
+  public void futureTest() throws ExecutionException, InterruptedException {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    Future<String> future = executor.submit(new Callable<String>() {
+      @Override
+      public String call() throws Exception {
+        try {
+          logger.info("Callable#call() method start.");
+          TimeUnit.SECONDS.sleep(2);
+          return "Hello future and callable.";
+        } finally {
+          logger.info("Callable#call() method end.");
+        }
+      }
+    });
+
+    String result = null;
+    try {
+      result = future.get(100, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      logger.warn("Exception occurred.", e);
+    }
+    logger.info("Result from future: {}", result);
+
+    result = future.get();
+    logger.info("Result from future: {}", result);
+
+    executor.shutdown();
+  }
+
 }
