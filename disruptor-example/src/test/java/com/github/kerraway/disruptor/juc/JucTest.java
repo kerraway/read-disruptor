@@ -2,11 +2,15 @@ package com.github.kerraway.disruptor.juc;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import sun.misc.Unsafe;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -176,6 +180,29 @@ public class JucTest {
       DelayElement take = delayQueue.take();
       logger.info("{}. take {}, expiration {} ms", i, take, take.getDelay(TimeUnit.MILLISECONDS));
     }
+  }
+
+  /**
+   * Atomic 系列类提供了原子性操作，用于保证多线程下的安全。
+   * <p>
+   * Atomic 系列类都是基于 {@link Unsafe} 类实现的，{@link Unsafe} 类的作用是：
+   * 1. 内存操作
+   * 2. 字段的定位与修改
+   * 3. 挂起与恢复
+   * 4. CAS 操作（乐观锁），例如 {@link Unsafe#compareAndSwapInt(Object, long, int, int)}
+   *
+   * @see AtomicInteger
+   * @see AtomicLong
+   * @see AtomicBoolean
+   */
+  @Test
+  public void atomicTest() {
+    AtomicInteger atomicInteger = new AtomicInteger(1);
+    logger.info("{}", atomicInteger.get());
+    logger.info("{}", atomicInteger.compareAndSet(2, 3));
+    logger.info("{}", atomicInteger.get());
+    logger.info("{}", atomicInteger.compareAndSet(1, 2));
+    logger.info("{}", atomicInteger.get());
   }
 
 }
