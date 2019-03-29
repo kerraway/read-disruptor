@@ -13,6 +13,8 @@ import java.util.concurrent.*;
 public class ThreadPoolTest {
 
   /**
+   * 参考：https://blog.csdn.net/zhouhl_cn/article/details/7392607
+   * <p>
    * <h3>参数介绍</h3>
    * <p>
    * corePoolSize

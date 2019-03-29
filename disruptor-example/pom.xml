@@ -14,13 +14,19 @@
     <version>1.0.0</version>
 
     <dependencies>
-        <!--disruptor-->
-        <dependency>
+        <!-- disruptor from maven repository -->
+        <!--<dependency>
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>3.3.2</version>
+        </dependency>-->
+        <!-- disruptor from local -->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor-source</artifactId>
+            <version>3.3.2</version>
         </dependency>
-        <!--log-->
+        <!-- log -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
